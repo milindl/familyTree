@@ -64,6 +64,78 @@ function renderNodes() {
 		    );
     });
 }
-renderPaths();
-renderNodes();
+function render() {
+    ctx.clearRect(0, 0, config.width, config.height);
+    renderPaths();
+    renderNodes();
+}
+var trackNodePath = function(e) {
+    return track(e, true);
+};
+var trackNode = function(e) {
+    return track(e, false);
+};
+function startNodeAdd(e) {
+    // Make a new Node
+    nodes.push( new Node("New Node", [], "f", 0, 0));
+    
+    // Do I also need to initialize a new Path?
+    var elementClickedOn = nodes.filter(function (elem) {
+	var boundX = (elem.gridX - 0.5) * nodeStyle.width;
+	var boundY = (elem.gridY - 0.5) * nodeStyle.height;
+	return (e.pageY > boundY &&
+		e.pageY < boundY+nodeStyle.height &&
+		e.pageX > boundX &&
+		e.pageX < boundX + nodeStyle.width)
+    });
 
+    if (elementClickedOn.length === 1) {
+	paths.push(new Path(
+	    elementClickedOn[0],
+	    nodes[nodes.length - 1]
+	));
+	canv.addEventListener("mousemove", trackNodePath);
+    }
+    else {
+	canv.addEventListener("mousemove", trackNode);
+    }
+    canv.removeEventListener("click", startNodeAdd);
+    canv.addEventListener("click", fixNode);
+
+}
+
+function fixNode(e) {
+    canv.addEventListener("click", startNodeAdd);
+    canv.removeEventListener("click", fixNode);
+    canv.removeEventListener("mousemove", trackNode);
+    canv.removeEventListener("mousemove", trackNodePath);
+}
+// TODO: Refactor to track in an elegant way
+function track(e, path) {
+    var snapToGrid = function(x, y) {
+	return [
+	    Math.round(x/nodeStyle.width) * nodeStyle.width,
+	    Math.round(y/nodeStyle.height) * nodeStyle.height
+	];
+    };
+    var gridCoords = snapToGrid(e.pageX, e.pageY);
+    
+    var newNode = new Node("New Node", [], "f",
+			 gridCoords[0]/nodeStyle.width + 0.5,
+			   gridCoords[1]/nodeStyle.height + 0.5);
+    var oldNode = nodes.pop();
+    nodes.push(newNode);
+    if (path) {
+	var oldPath = paths.pop();
+	paths.push(new Path(
+	    oldPath.from,
+	    newNode
+	));
+    }
+    if (JSON.stringify(newNode) !== JSON.stringify(oldNode)) 
+	render();
+    console.log(JSON.stringify(newNode));
+}
+
+render();
+canv.addEventListener("click", startNodeAdd);
