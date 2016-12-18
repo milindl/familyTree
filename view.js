@@ -105,10 +105,24 @@ function startNodeAdd(e) {
 }
 
 function fixNode(e) {
-    canv.addEventListener("click", startNodeAdd);
     canv.removeEventListener("click", fixNode);
     canv.removeEventListener("mousemove", trackNode);
     canv.removeEventListener("mousemove", trackNodePath);
+    var oldNode = nodes.pop();
+    populateFromUser(oldNode).then(function resolve(node) {
+	canv.addEventListener("click", startNodeAdd);
+	nodes.push(node);
+
+	// Deal with paths
+	paths.forEach(function(path) {
+	    if (path.from === oldNode)
+		path.from = node;
+	    if (path.to === oldNode)
+		path.to = node;
+	});
+	console.log(JSON.stringify(paths));
+	render();
+    });
 }
 // TODO: Refactor to track in an elegant way
 function track(e, path) {
@@ -137,5 +151,64 @@ function track(e, path) {
     console.log(JSON.stringify(newNode));
 }
 
+// Get user input when needed
+
+function populateFromUser(node) {
+    var divProperties = {
+	left: node.gridX * nodeStyle.width,
+	top: node.gridY * nodeStyle.height
+    };
+    // Some ugly DOM manipulation follows
+    var questionDiv = document.createElement("div");
+    questionDiv.id = "questionDiv";
+    questionDiv.style.left = divProperties.left + "px";
+    questionDiv.style.top = divProperties.top + "px";
+
+    // Create input elements
+    var createTextInput = function(id, placeholder) {
+	var inp = document.createElement("input");
+	inp.type = "text"
+	inp.id = id;
+	inp.placeholder = placeholder;
+	return inp;
+    }
+    var nameInput = createTextInput("nameInput", "Name");
+    var nickNameInput = createTextInput("nickNameInput", "Optional nickname");
+    var maidenNameInput = createTextInput("maidenNameInput", "Optional maiden name");
+    var genderInput = createTextInput("genderInput", "Gender - m or f");
+    var submitInput = document.createElement("input");
+    submitInput.type = "submit";
+    submitInput.value = "Done";
+
+    // Add all to questionDiv
+    
+    [ nameInput,
+      nickNameInput,
+      maidenNameInput,
+      genderInput,
+      submitInput
+    ].forEach(function(elem) {
+	questionDiv.appendChild(elem);
+    });
+    document.body.appendChild(questionDiv);
+
+
+    return new Promise(function(resolve, reject) {
+	submitInput.addEventListener("click", function(){
+	    node.name = nameInput.value;
+	    node.gender = genderInput.value;
+	    node.alterNames = [];
+	    if (maidenNameInput.value)
+		node.alterNames.push(maidenNameInput.value);
+	    if (nickNameInput.value)
+		node.alterNames.push(nickNameInput.value);
+	    questionDiv.parentNode.removeChild(questionDiv);
+	    questionDiv = null; // necessary? 
+	    return resolve(node);
+	});
+    });
+}
+
+// Main entry point code
 render();
 canv.addEventListener("click", startNodeAdd);
