@@ -4,15 +4,15 @@
 
 var nodeStyle = {
     // These usually need to contain 5's and stuff to avoid decimal errors when converted to pixels
-    width: 150,
-    height: 75,
-    fontSize: 14
+    width: 90,
+    height: 40,
+    fontSize: 12
 };
 
 var config = {
     canvasId: "maindraw",
-    width: 5000,
-    height: 5000
+    width: 9000,
+    height: 9000
 };
 
 // Shared objects
@@ -25,6 +25,10 @@ function renderPaths() {
     paths.forEach(function(path) {
 	// Begin sketching path
 	var pathPoints = path.convertToSteps(nodeStyle);
+	if (path.isMarriage()) 
+	    ctx.setLineDash([1, 0, 1, 1]);
+	else
+	    ctx.setLineDash([1, 0]);
 	ctx.beginPath();
 	ctx.moveTo(pathPoints[0][0], pathPoints[0][1]);
 	pathPoints
@@ -120,7 +124,6 @@ function fixNode(e) {
 	    if (path.to === oldNode)
 		path.to = node;
 	});
-	console.log(JSON.stringify(paths));
 	render();
     });
 }
@@ -148,7 +151,6 @@ function track(e, path) {
     }
     if (JSON.stringify(newNode) !== JSON.stringify(oldNode)) 
 	render();
-    console.log(JSON.stringify(newNode));
 }
 
 // Get user input when needed
@@ -191,8 +193,7 @@ function populateFromUser(node) {
 	questionDiv.appendChild(elem);
     });
     document.body.appendChild(questionDiv);
-
-
+    
     return new Promise(function(resolve, reject) {
 	submitInput.addEventListener("click", function(){
 	    node.name = nameInput.value;

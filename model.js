@@ -18,7 +18,9 @@ function Path(from, to) {
     this.from = from;
     this.to = to;
 }
-
+Path.prototype.isMarriage = function() {
+    return this.from.gridY === this.to.gridY;
+}
 Path.prototype.convertToSteps = function(nodeStyle) {
     var convertToPixels = function(x, y) {
 	return [ x*nodeStyle.width, y*nodeStyle.height ];
