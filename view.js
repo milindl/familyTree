@@ -15,11 +15,13 @@ var config = {
     height: 9000
 };
 
-// Shared objects
-var canv = document.getElementById(config.canvasId);
-canv.height = config.height;
-canv.width = config.width;
-var ctx = canv.getContext('2d');
+// Shared objects initialization
+function init() {
+    var canv = document.getElementById(config.canvasId);
+    canv.height = config.height;
+    canv.width = config.width;
+    var ctx = canv.getContext('2d');
+}
 
 function renderPaths() {
     paths.forEach(function(path) {
@@ -272,7 +274,6 @@ nodes = nodes.map(function(node) {
 	node.gridY
     );
 });
-render();
 var nodeClickListeners = [startNodeAdd, startNodeDeletion, startNodeModify, fixNode];
 function clearListeners() {
     nodeClickListeners.forEach(function(listener) {
@@ -316,7 +317,7 @@ function trimNodes(nodeList, pathList) {
 }
 function startViewMode() {
     clearListeners();
-    trimNodes();
+    trimNodes(nodes, paths);
     canv.onmousemove=function(e){mouse={x:e.pageX-this.offsetLeft,y:e.pageY-this.offsetTop};} 
     canv.onmousemove=function(e){mouse={x:e.pageX-this.offsetLeft,y:e.pageY-this.offsetTop};} 
 
@@ -354,3 +355,4 @@ function startViewMode() {
     }
 }
 
+startViewMode();

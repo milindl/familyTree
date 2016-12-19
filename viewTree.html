@@ -1,0 +1,24 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset = "utf8">
+    <script src = "model.js"></script>
+    <script src = "view.js"></script>
+    <script src = "util.js"></script>
+    <link href = "pageStyle.css" rel = "stylesheet">
+  </head>
+  <body>
+    <canvas id = "maindraw">
+    </canvas>
+    <div  style = "position: fixed; top: 0px; right:0px">
+      <a href = "#" onclick = "document.body.innerHTML = '<pre>var paths = ' + JSON.stringify(paths, null, 2) + ';var nodes = ' + JSON.stringify(nodes, null, 2);">
+	Save
+      </a>
+      <script>
+	loadScript("data.js", function(){
+	loadScript("view.js", function() {});
+	});
+      </script>
+    </div>
+  </body>
+</html>

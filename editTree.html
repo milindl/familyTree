@@ -31,12 +31,23 @@
       #questionDiv input {
       width:100%;
       }
+      span {
+      padding: 5px;
+      }
     </style>
   </head>
   <body>
     <canvas id = "maindraw">
     </canvas>
+    
     <script src = "view.js"></script>
-    <a href = "#" onclick = "document.body.innerHTML = '<pre>var paths = ' + JSON.stringify(paths, null, 2) + ';var nodes = ' + JSON.stringify(nodes, null, 2);" style = "position: fixed; top: 0px; right:0px">Save</a>
+    <div  style = "position: fixed; top: 0px; right:0px">
+    <a href = "#" onclick = "document.body.innerHTML = '<pre>var paths = ' + JSON.stringify(paths, null, 2) + ';var nodes = ' + JSON.stringify(nodes, null, 2);">
+      Save
+    </a>
+    <span onclick = "startAddMode();">Add</span>
+    <span onclick = "startDeleteMode();">Delete</span>
+    <span onclick = "startModifyMode();">Modify</span>
+    </div>
   </body>
 </html>

@@ -1,0 +1,29 @@
+body {
+    margin: 0px;
+    padding: 0px;
+}
+canvas {
+    margin: 0px;
+    padding; 0px;
+}
+.node {
+    position: absolute;
+    padding: 0px;
+    margin: 0px;
+    text-align: center;
+}
+.node span {
+    font-style: italic;
+    display: block;
+}
+#questionDiv {
+    position: absolute;
+    width: 30%;
+    background: white;
+}
+#questionDiv input {
+    width:100%;
+}
+span {
+    padding: 5px;
+}
