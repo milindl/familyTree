@@ -54,9 +54,14 @@ function renderNodes() {
 	    "steelblue" : "#f66";
 	ctx.fillRect.apply(ctx, rect);
 
+	//Add a node border
+	ctx.strokeStyle = "black";
+	ctx.strokeRect.apply(ctx, rect);
+	
 	// Now render the text
 	ctx.font = font;
 	ctx.fillStyle = "black";
+	ctx.setLineDash([1,0]);
 	ctx.fillText(node.name,
 		     nodeStyle.width * node.gridX,
 		     nodeStyle.height * node.gridY - nodeStyle.fontSize/2
@@ -211,5 +216,63 @@ function populateFromUser(node) {
 }
 
 // Main entry point code
+
+// Need to process initial data
+paths = paths.map(function(path) {
+    return new Path(
+	path.from,
+	path.to
+    );
+});
+nodes = nodes.map(function(node) {
+    return new Node(
+	node.name,
+	node.alterNames,
+	node.gender,
+	node.gridX,
+	node.gridY
+    );
+});
 render();
-canv.addEventListener("click", startNodeAdd);
+
+function startEditMode() {
+    canv.addEventListener("click", startNodeAdd);
+}
+
+function startViewMode() {
+    canv.onmousemove=function(e){mouse={x:e.pageX-this.offsetLeft,y:e.pageY-this.offsetTop};} 
+    canv.onmousemove=function(e){mouse={x:e.pageX-this.offsetLeft,y:e.pageY-this.offsetTop};} 
+
+    var isDown = false;
+    var startCoords = [];
+    var last = [0, 0];
+
+    canv.onmousedown = function(e) {
+	isDown = true;
+
+	startCoords = [
+            e.offsetX - last[0],
+            e.offsetY - last[1]
+	];
+    };
+
+    canv.onmouseup   = function(e) {
+	isDown = false;
+	
+	last = [
+            e.offsetX - startCoords[0], // set last coordinates
+            e.offsetY - startCoords[1]
+	];
+    };
+
+    canv.onmousemove = function(e)
+    {
+	if(!isDown) return;
+	
+	var x = e.offsetX;
+	var y = e.offsetY;
+	ctx.setTransform(1, 0, 0, 1,
+			 x - startCoords[0], y - startCoords[1]);
+	render();
+    }
+}
