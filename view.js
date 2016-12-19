@@ -16,11 +16,28 @@ var config = {
 };
 
 // Shared objects initialization
+var canv, ctx;
 function init() {
-    var canv = document.getElementById(config.canvasId);
+    canv = document.getElementById(config.canvasId);
     canv.height = config.height;
     canv.width = config.width;
-    var ctx = canv.getContext('2d');
+    ctx = canv.getContext('2d');
+    
+    paths = paths.map(function(path) {
+	return new Path(
+	    path.from,
+	    path.to
+	);
+    });
+    nodes = nodes.map(function(node) {
+	return new Node(
+	    node.name,
+	    node.alterNames,
+	    node.gender,
+	    node.gridX,
+	    node.gridY
+	);
+    });
 }
 
 function renderPaths() {
@@ -259,21 +276,7 @@ function populateFromUser(node) {
 // Main entry point code
 
 // Need to process initial data
-paths = paths.map(function(path) {
-    return new Path(
-	path.from,
-	path.to
-    );
-});
-nodes = nodes.map(function(node) {
-    return new Node(
-	node.name,
-	node.alterNames,
-	node.gender,
-	node.gridX,
-	node.gridY
-    );
-});
+
 var nodeClickListeners = [startNodeAdd, startNodeDeletion, startNodeModify, fixNode];
 function clearListeners() {
     nodeClickListeners.forEach(function(listener) {
@@ -355,4 +358,3 @@ function startViewMode() {
     }
 }
 
-startViewMode();

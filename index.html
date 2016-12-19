@@ -14,10 +14,23 @@
       <a href = "#" onclick = "document.body.innerHTML = '<pre>var paths = ' + JSON.stringify(paths, null, 2) + ';var nodes = ' + JSON.stringify(nodes, null, 2);">
 	Save
       </a>
+      <span
+	class="editControl"
+	onclick = "startAddMode();">
+	Add
+      </span>
+      <span
+	class="editControl"
+	onclick = "startDeleteMode();">
+	Delete
+      </span>
+      <span
+	class="editControl"
+	onclick = "startModifyMode();">
+	Modify
+      </span>
       <script>
-	loadScript("data.js", function(){
-	loadScript("view.js", function() {});
-	});
+	Main(window)
       </script>
     </div>
   </body>
