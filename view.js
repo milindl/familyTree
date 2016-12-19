@@ -273,18 +273,50 @@ nodes = nodes.map(function(node) {
     );
 });
 render();
-
+var nodeClickListeners = [startNodeAdd, startNodeDeletion, startNodeModify, fixNode];
+function clearListeners() {
+    nodeClickListeners.forEach(function(listener) {
+	canv.removeEventListener("click", listener);
+    });
+}
 function startAddMode() {
+    clearListeners();
     canv.addEventListener("click", startNodeAdd);
 }
 function startDeleteMode() {
+    clearListeners();
     canv.addEventListener("click", startNodeDeletion);
 }
 function startModifyMode() {
+    clearListeners();
     canv.addEventListener("click", startNodeModify);
 }
-
+function trimNodes(nodeList, pathList) {
+    
+    var getGridX = function(elem) {
+	return elem.gridX;
+    };
+    var getGridY = function(elem) {
+	return elem.gridY;
+    };
+    var leftMin = Math.min.apply(null, nodeList.map(getGridX));
+    leftMin -= 3;
+    var topMin = Math.min.apply(null, nodeList.map(getGridY));
+    topMin -= 3;
+    nodeList.forEach(function trim(node) {
+	node.gridX -= leftMin;
+	node.gridY -= topMin;
+    });
+    pathList.forEach(function trim(path) {
+	path.from.gridX -= leftMin;
+	path.from.gridY -= topMin;
+	path.to.gridX -= leftMin;
+	path.to.gridY -= topMin;
+    });
+}
 function startViewMode() {
+    clearListeners();
+    trimNodes();
     canv.onmousemove=function(e){mouse={x:e.pageX-this.offsetLeft,y:e.pageY-this.offsetTop};} 
     canv.onmousemove=function(e){mouse={x:e.pageX-this.offsetLeft,y:e.pageY-this.offsetTop};} 
 
@@ -321,4 +353,4 @@ function startViewMode() {
 	render();
     }
 }
-startDeleteMode();
+
