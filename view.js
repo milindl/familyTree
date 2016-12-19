@@ -125,12 +125,26 @@ function startNodeModify(e) {
     // First, we need to be on top of a node to do anything about it
     var elem = elementClickedOn(e, nodeStyle);
     if (elem === null) return;
-    canv.removeEventListener(startNodeModify);
+    canv.removeEventListener("click", startNodeModify);
     populateFromUser(elem).then(function resolve(node) {
 	elem = node;
 	render();
-	canv.addEventListener(startNodeModify);
+	canv.addEventListener("click", startNodeModify);
     });
+}
+function startNodeDeletion(e) {
+    var elem = elementClickedOn(e, nodeStyle);
+    if (elem === null) return;
+    nodes = nodes.filter(function(node) {
+	return !(elem.gridX == node.gridX && elem.gridY == node.gridY);
+    });
+    paths = paths.filter(function(path) {
+	return !(
+	    ((path.to.gridX === elem.gridX) && (path.to.gridY === elem.gridY)) ||
+		((path.from.gridX === elem.gridX) && path.from.gridY === elem.gridY)
+	);
+    });
+    render();
 }
 function fixNode(e) {
     canv.removeEventListener("click", fixNode);
@@ -263,7 +277,9 @@ render();
 function startAddMode() {
     canv.addEventListener("click", startNodeAdd);
 }
-
+function startDeleteMode() {
+    canv.addEventListener("click", startNodeDeletion);
+}
 function startModifyMode() {
     canv.addEventListener("click", startNodeModify);
 }
@@ -305,4 +321,4 @@ function startViewMode() {
 	render();
     }
 }
-startModifyMode();
+startDeleteMode();
