@@ -4,14 +4,14 @@
 
 var nodeStyle = {
     // These usually need to contain 5's and stuff to avoid decimal errors when converted to pixels
-    width: 90,
-    height: 40,
-    fontSize: 12
+    width: 100,
+    height: 30,
+    fontSize: 10
 };
 
 var config = {
     canvasId: "maindraw",
-    width: 9000,
+    width: 10000,
     height: 9000
 };
 
@@ -42,7 +42,7 @@ function renderPaths() {
 
 function renderNodes() {
     // Set some common properties for rendering
-    var font = nodeStyle.fontSize +  "px serif";
+    var font = nodeStyle.fontSize +  "px sans serif";
     ctx.textAlign = "center";
 
     // Start render
@@ -51,7 +51,7 @@ function renderNodes() {
 	// First render the rectangle
 	var rect = node.convertToRect(nodeStyle);
 	ctx.fillStyle = node.gender === "m" ?
-	    "steelblue" : "#f66";
+	    "steelblue" : "#6f6";
 	ctx.fillRect.apply(ctx, rect);
 
 	//Add a node border
@@ -67,7 +67,11 @@ function renderNodes() {
 		     nodeStyle.height * node.gridY - nodeStyle.fontSize/2
 		    );
 	ctx.font = "italic " + font;
-	ctx.fillText(node.alterNames.join(", "),
+	ctx.fillText(node.alterNames
+		     .filter(function(elem) {
+			 return elem;
+		     })
+		     .join(", "),
 		     nodeStyle.width * node.gridX,
 		     nodeStyle.height * node.gridY +nodeStyle.fontSize/2
 		    );
@@ -84,12 +88,9 @@ var trackNodePath = function(e) {
 var trackNode = function(e) {
     return track(e, false);
 };
-function startNodeAdd(e) {
-    // Make a new Node
-    nodes.push( new Node("New Node", [], "f", 0, 0));
-    
-    // Do I also need to initialize a new Path?
-    var elementClickedOn = nodes.filter(function (elem) {
+
+function elementClickedOn(e, nodeStyle) {
+    var elementsClickedOn = nodes.filter(function (elem) {
 	var boundX = (elem.gridX - 0.5) * nodeStyle.width;
 	var boundY = (elem.gridY - 0.5) * nodeStyle.height;
 	return (e.pageY > boundY &&
@@ -97,10 +98,18 @@ function startNodeAdd(e) {
 		e.pageX > boundX &&
 		e.pageX < boundX + nodeStyle.width)
     });
+    return elementsClickedOn.length === 1 ?
+	elementsClickedOn[0] : null;
 
-    if (elementClickedOn.length === 1) {
+}
+function startNodeAdd(e) {
+    // Make a new Node
+    nodes.push( new Node("New Node", [], "f", 0, 0));
+    
+    // Do I also need to initialize a new Path?
+    if (elementClickedOn(e, nodeStyle)) {
 	paths.push(new Path(
-	    elementClickedOn[0],
+	    elementClickedOn(e, nodeStyle),
 	    nodes[nodes.length - 1]
 	));
 	canv.addEventListener("mousemove", trackNodePath);
@@ -112,7 +121,17 @@ function startNodeAdd(e) {
     canv.addEventListener("click", fixNode);
 
 }
-
+function startNodeModify(e) {
+    // First, we need to be on top of a node to do anything about it
+    var elem = elementClickedOn(e, nodeStyle);
+    if (elem === null) return;
+    canv.removeEventListener(startNodeModify);
+    populateFromUser(elem).then(function resolve(node) {
+	elem = node;
+	render();
+	canv.addEventListener(startNodeModify);
+    });
+}
 function fixNode(e) {
     canv.removeEventListener("click", fixNode);
     canv.removeEventListener("mousemove", trackNode);
@@ -172,17 +191,19 @@ function populateFromUser(node) {
     questionDiv.style.top = divProperties.top + "px";
 
     // Create input elements
-    var createTextInput = function(id, placeholder) {
+    var createTextInput = function(id, placeholder, value) {
 	var inp = document.createElement("input");
 	inp.type = "text"
 	inp.id = id;
 	inp.placeholder = placeholder;
+	if (value)
+	    inp.value = value;
 	return inp;
     }
-    var nameInput = createTextInput("nameInput", "Name");
-    var nickNameInput = createTextInput("nickNameInput", "Optional nickname");
-    var maidenNameInput = createTextInput("maidenNameInput", "Optional maiden name");
-    var genderInput = createTextInput("genderInput", "Gender - m or f");
+    var nameInput = createTextInput("nameInput", "Name", node.name);
+    var nickNameInput = createTextInput("nickNameInput", "Optional nickname", node.alterNames[1]);
+    var maidenNameInput = createTextInput("maidenNameInput", "Optional maiden name", node.alterNames[0]);
+    var genderInput = createTextInput("genderInput", "Gender - m or f", node.gender);
     var submitInput = document.createElement("input");
     submitInput.type = "submit";
     submitInput.value = "Done";
@@ -206,8 +227,12 @@ function populateFromUser(node) {
 	    node.alterNames = [];
 	    if (maidenNameInput.value)
 		node.alterNames.push(maidenNameInput.value);
+	    else
+		node.alterNames.push("");
 	    if (nickNameInput.value)
 		node.alterNames.push(nickNameInput.value);
+	    else
+		node.alterNames.push("");
 	    questionDiv.parentNode.removeChild(questionDiv);
 	    questionDiv = null; // necessary? 
 	    return resolve(node);
@@ -235,8 +260,12 @@ nodes = nodes.map(function(node) {
 });
 render();
 
-function startEditMode() {
+function startAddMode() {
     canv.addEventListener("click", startNodeAdd);
+}
+
+function startModifyMode() {
+    canv.addEventListener("click", startNodeModify);
 }
 
 function startViewMode() {
@@ -276,3 +305,4 @@ function startViewMode() {
 	render();
     }
 }
+startModifyMode();
