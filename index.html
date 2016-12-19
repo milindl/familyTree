@@ -25,6 +25,7 @@
       }
       #questionDiv {
       position: absolute;
+      width: 30%;
       background: white;
       }
       #questionDiv input {
@@ -36,5 +37,6 @@
     <canvas id = "maindraw">
     </canvas>
     <script src = "view.js"></script>
+    <a href = "#" onclick = "document.body.innerHTML = '<pre>var paths = ' + JSON.stringify(paths, null, 2) + ';var nodes = ' + JSON.stringify(nodes, null, 2);" style = "position: fixed; top: 0px; right:0px">Save</a>
   </body>
 </html>
