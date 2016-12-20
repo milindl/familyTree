@@ -304,9 +304,9 @@ function trimNodes(nodeList, pathList) {
 	return elem.gridY;
     };
     var leftMin = Math.min.apply(null, nodeList.map(getGridX));
-    leftMin -= 3;
+    leftMin -= 1;
     var topMin = Math.min.apply(null, nodeList.map(getGridY));
-    topMin -= 3;
+    topMin -= 1;
     nodeList.forEach(function trim(node) {
 	node.gridX -= leftMin;
 	node.gridY -= topMin;
